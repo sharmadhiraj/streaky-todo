@@ -1,24 +1,26 @@
 import React from 'react';
+import {TodoItem} from "../../types/ToDo";
 
 interface TodoProps {
-    text: string;
-    completed: boolean;
+    todo: TodoItem;
     onComplete: () => void;
     onEdit: () => void;
 }
 
-const Todo: React.FC<TodoProps> = ({text, completed, onComplete, onEdit}) => (
+const Todo: React.FC<TodoProps> = ({todo, onComplete, onEdit}) => (
     <li className="todo-list-item">
         <div className="todo-text-container">
-            <p>{text}</p>
-            <span className={`todo-status-capsule ${completed ? 'todo-status-completed' : 'todo-status-pending'}`}>
-                {completed ? 'Completed' : 'Pending'}
+            <p>{todo.text}</p>
+            <span className={`todo-status-capsule ${todo.completed ? 'todo-status-completed' : 'todo-status-pending'}`}>
+                {todo.completed ? 'Completed' : 'Pending'}
             </span>
         </div>
-        <div className="todo-button-container">
-            <button className="todo-button" onClick={onEdit}>Edit</button>
-            <button className="todo-button" onClick={onComplete}>Complete</button>
-        </div>
+        {!todo.completed && (
+            <div className="todo-button-container">
+                <button className="todo-button" onClick={onEdit}>Edit</button>
+                <button className="todo-button" onClick={onComplete}>Complete</button>
+            </div>
+        )}
     </li>
 );
 

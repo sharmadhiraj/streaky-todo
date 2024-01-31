@@ -1,12 +1,27 @@
-import React, {useState} from 'react';
-import ToDo from "../ToDo/ToDo";
+import React, {useEffect, useState} from 'react';
+import Todo from "../ToDo/ToDo";
 import './App.css';
+import {TodoItem} from "../../types/ToDo";
+
 
 interface AppProps {
 }
 
-const App: React.FC<AppProps> = ({}) => {
-    const [todos, setTodos] = useState<any[]>([]);
+const loadTodos = (): TodoItem[] => {
+    const todosJSON = localStorage.getItem('todos');
+    return todosJSON ? JSON.parse(todosJSON) : [];
+};
+
+const saveTodos = (todos: TodoItem[]) => {
+    localStorage.setItem('todos', JSON.stringify(todos));
+};
+
+const App: React.FC<AppProps> = () => {
+    const [todos, setTodos] = useState<TodoItem[]>(loadTodos);
+
+    useEffect(() => {
+        saveTodos(todos);
+    }, [todos]);
 
     const addTodo = (text: string) => {
         if (text.length === 0) return;
@@ -37,10 +52,9 @@ const App: React.FC<AppProps> = ({}) => {
             ) : (
                 <ul style={{margin: 0, padding: 0}}>
                     {todos.map((todo, index) => (
-                        <ToDo
+                        <Todo
                             key={index}
-                            text={todo.text}
-                            completed={todo.completed}
+                            todo={todo}
                             onComplete={() => completeTodo(index)}
                             onEdit={() => editTodo(index, prompt("Edit Todo:", todo.text) || '')}
                         />
@@ -50,6 +64,5 @@ const App: React.FC<AppProps> = ({}) => {
         </div>
     );
 };
-
 
 export default App;
