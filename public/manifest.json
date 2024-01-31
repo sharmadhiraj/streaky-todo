@@ -1,6 +1,6 @@
 {
-  "short_name": "React App",
-  "name": "Create React App Sample",
+  "short_name": "StreakyToDo",
+  "name": "React ToDo app with streak tracking for daily or weekly goals.",
   "icons": [
     {
       "src": "favicon.ico",
