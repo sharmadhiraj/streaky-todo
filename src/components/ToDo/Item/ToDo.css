@@ -1,0 +1,41 @@
+.todo-list-item {
+    background-color: #fff;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    margin: 10px 0;
+    padding: 15px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.todo-list-item p {
+    margin: 0;
+}
+
+.streak-capsule {
+    margin-top: 8px;
+    display: inline-block;
+    padding: 4px 10px;
+    border-radius: 4px;
+    background-color: #ddd;
+    color: #333;
+    font-size: 12px;
+    font-weight: bold;
+}
+
+.todo-list-item button {
+    padding: 8px;
+    background-color: teal;
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: bold;
+}
+
+.todo-list-item button:hover {
+    background-color: #006666;
+}

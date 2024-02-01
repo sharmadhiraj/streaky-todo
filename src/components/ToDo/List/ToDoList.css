@@ -1,0 +1,46 @@
+.add-todo-button-container {
+    display: flex;
+    justify-content: space-between;
+}
+
+.add-todo-button {
+    margin-top: auto;
+    margin-bottom: auto;
+    padding: 10px;
+    background-color: #4caf50;
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: bold;
+}
+
+.empty-todo {
+    text-align: center;
+    color: grey;
+    padding: 24px;
+}
+
+.tab-container {
+    display: flex;
+}
+
+.tab-container button {
+    margin-right: 12px;
+    padding: 8px 16px;
+    cursor: pointer;
+    border: none;
+    border-radius: 16px;
+    background-color: lightskyblue;
+    color: #fff;
+    transition: background-color 0.3s ease;
+    font-weight: bold;
+}
+
+.tab-container button:hover {
+    background-color: deepskyblue;
+}
+
+.selected-tab {
+    background-color: deepskyblue !important;
+}

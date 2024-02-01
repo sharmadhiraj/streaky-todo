@@ -1,0 +1,51 @@
+.add-todo-form {
+}
+
+label {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 8px;
+}
+
+input,
+select {
+    width: 100%;
+    padding: 8px;
+    margin-top: 4px;
+    margin-bottom: 12px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    box-sizing: border-box;
+}
+
+.add-todo-form div {
+    display: flex;
+    align-items: center;
+}
+
+button {
+    margin-top: 10px;
+    width: 100%;
+    background-color: #4caf50;
+    color: #fff;
+    border: none;
+    padding: 10px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: bold;
+}
+
+button:hover {
+    background-color: #45a049;
+}
+
+.tracking-days-container {
+    display: flex;
+    flex-wrap: wrap;
+}
+
+.day-checkbox {
+    margin-left: 8px;
+    display: flex;
+    align-items: center;
+}
