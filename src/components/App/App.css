@@ -24,4 +24,9 @@ body {
 
 h1 {
     color: #333;
+    margin-bottom: 8px !important;
+}
+
+h4 {
+    margin-top: 0 !important;
 }

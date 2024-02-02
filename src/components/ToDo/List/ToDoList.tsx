@@ -1,50 +1,19 @@
-import React, {useEffect, useState} from 'react';
+import React, {useState} from 'react';
 import Todo from "../Item/ToDo";
 import './ToDoList.css';
 import {TodoItem} from "../../../types/ToDo";
+import {useNavigate} from 'react-router-dom';
+import {loadTodos} from "../../../util/Storage";
 
 
 interface ToDoListProps {
 }
 
-const loadTodos = (): TodoItem[] => {
-    const todosJSON = localStorage.getItem('todos');
-    return todosJSON ? JSON.parse(todosJSON) : [];
-};
-
-const saveTodos = (todos: TodoItem[]) => {
-    localStorage.setItem('todos', JSON.stringify(todos));
-};
 
 const ToDoList: React.FC<ToDoListProps> = () => {
-    const [todos, setTodos] = useState<TodoItem[]>(loadTodos);
+    const [todos] = useState<TodoItem[]>(loadTodos);
     const [showCompleted, setShowCompleted] = useState<boolean>(false);
-
-    useEffect(() => {
-        saveTodos(todos);
-    }, [todos]);
-
-
-    const addTodo = (text: string) => {
-        if (text.length === 0) return;
-        setTodos([...todos, {
-            text,
-            completed: false,
-            type: 'daily',
-            completedDates: [],
-            trackingDetails: {
-                daily: [],
-                weekly: 1,
-            },
-        }]);
-    };
-
-    const editTodo = (index: number, newText: string) => {
-        if (newText.length === 0) return;
-        const updatedTodos = [...todos];
-        updatedTodos[index].text = newText;
-        setTodos(updatedTodos);
-    };
+    const navigate = useNavigate();
 
     const ongoingTodos = todos.filter((todo) => !todo.completed);
     const completedTodos = todos.filter((todo) => todo.completed);
@@ -67,23 +36,20 @@ const ToDoList: React.FC<ToDoListProps> = () => {
 
                 <button
                     className="add-todo-button"
-                    onClick={() => addTodo(prompt("Enter ToDo:") || "")}>
+                    onClick={() => navigate('/add')}>
                     Add New ToDo Item
                 </button>
             </div>
-            <hr/>
-            <ul style={{margin: 0, padding: 0}}>
+
+            <ul className="todo-list">
                 {(showCompleted ? completedTodos : ongoingTodos).length === 0 ? (
                     <p className="empty-todo">
                         {showCompleted ? "You don't have any completed items." : "You don't have any ongoing items."}
                     </p>
                 ) : (
                     (showCompleted ? completedTodos : ongoingTodos).map((todo, index) => (
-                        <Todo
-                            key={index}
-                            todo={todo}
-                            onEdit={() => editTodo(index, prompt("Edit Todo:", todo.text) || '')}
-                        />
+                        <Todo key={index}
+                              todo={todo}/>
                     ))
                 )}
             </ul>

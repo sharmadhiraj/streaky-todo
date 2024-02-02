@@ -31,7 +31,7 @@
     cursor: pointer;
     border: none;
     border-radius: 16px;
-    background-color: lightskyblue;
+    background-color: grey;
     color: #fff;
     transition: background-color 0.3s ease;
     font-weight: bold;
@@ -43,4 +43,9 @@
 
 .selected-tab {
     background-color: deepskyblue !important;
+}
+
+.todo-list {
+    margin: 0;
+    padding: 0;
 }

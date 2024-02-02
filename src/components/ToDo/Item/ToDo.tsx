@@ -1,22 +1,26 @@
 import React from 'react';
-import {calculateStreak, TodoItem} from "../../../types/ToDo";
+import {calculateCurrentStreak, calculateLongestStreak, TodoItem} from "../../../types/ToDo";
 import './ToDo.css';
+import {useNavigate} from "react-router-dom";
 
 interface TodoProps {
     todo: TodoItem;
-    onEdit: () => void;
 }
 
-const Todo: React.FC<TodoProps> = ({todo, onEdit}) => (
-    <li className="todo-list-item">
-        <div>
-            <p><b>{todo.text}</b></p>
-            <span className="streak-capsule">Streak: {calculateStreak(todo)}</span>
-        </div>
-        {!todo.completed && (
-            <button className="edit-todo-button" onClick={onEdit}>Edit</button>
-        )}
-    </li>
-);
+const Todo: React.FC<TodoProps> = ({todo}) => {
+    const navigate = useNavigate();
+    return (
+        <li className="todo-list-item">
+            <div>
+                <p><b>{todo.text}</b></p>
+                <span className="streak-capsule">Longest Streak: {calculateLongestStreak(todo)}</span>
+                <span className="streak-capsule">Current Streak: {calculateCurrentStreak(todo)}</span>
+            </div>
+            <button className="edit-todo-button" onClick={() => navigate(`/add?id=${todo.id}`)}>
+                Edit
+            </button>
+        </li>
+    )
+};
 
 export default Todo;
