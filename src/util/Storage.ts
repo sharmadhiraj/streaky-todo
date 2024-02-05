@@ -1,5 +1,7 @@
 import {TodoItem} from "../types/ToDo";
 
+const {v4} = require("uuid");
+
 export const loadTodos = (): TodoItem[] => {
     const todosJSON = localStorage.getItem('todos');
     return todosJSON ? JSON.parse(todosJSON) : [];
@@ -11,7 +13,12 @@ export const saveTodos = (todos: TodoItem[]) => {
 
 
 export const saveTodo = (todo: Partial<TodoItem>) => {
-    localStorage.setItem('todos', JSON.stringify([todo, ...loadTodos()]));
+    if (todo.id?.length === 0) {
+        todo.id = v4();
+        localStorage.setItem('todos', JSON.stringify([todo, ...loadTodos()]));
+    } else {
+        updateTodo(todo);
+    }
 };
 
 export const getTodoById = (id: string): TodoItem | undefined => {
@@ -19,8 +26,8 @@ export const getTodoById = (id: string): TodoItem | undefined => {
     return todos.find(todo => todo.id === id);
 };
 
-export const updateTodo = (id: string, updatedTodo: Partial<TodoItem>) => {
+const updateTodo = (updatedTodo: Partial<TodoItem>) => {
     const todos = loadTodos();
-    const updatedTodos = todos.map(todo => (todo.id === id ? {...todo, ...updatedTodo} : todo));
+    const updatedTodos = todos.map(todo => (todo.id === updatedTodo.id ? {...todo, ...updatedTodo} : todo));
     saveTodos(updatedTodos);
 };

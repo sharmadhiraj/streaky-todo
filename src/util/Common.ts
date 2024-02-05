@@ -1,6 +1,6 @@
 export const generateWeeklyGroupedDates = (startDateString: string): Record<number, string[]> => {
     let startDate = new Date(startDateString);
-    startDate = new Date(startDate.getFullYear(), startDate.getMonth(), startDate.getDate() - 16);
+    startDate = new Date(startDate.getFullYear(), startDate.getMonth(), startDate.getDate());
     const now = new Date();
     const today = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59);
     const groupedDates: Record<number, string[]> = {};

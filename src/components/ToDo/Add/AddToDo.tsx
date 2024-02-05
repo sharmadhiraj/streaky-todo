@@ -1,10 +1,9 @@
 import React, {useEffect, useState} from 'react';
 import './AddToDo.css';
 import {useLocation, useNavigate} from 'react-router-dom';
-import {getTodoById, saveTodo, updateTodo} from "../../../util/Storage";
+import {getTodoById, saveTodo} from "../../../util/Storage";
 import {generateWeeklyGroupedDates} from "../../../util/Common";
-
-const {v4} = require("uuid");
+import {TodoItem} from "../../../types/ToDo";
 
 interface AddTodoFormProps {
 }
@@ -12,18 +11,25 @@ interface AddTodoFormProps {
 const daysOfWeek = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
 
 const AddToDo: React.FC<AddTodoFormProps> = () => {
-    const [isUpdate, setIsUpdate] = useState<boolean>(false);
-    const [todoId, setTodoId] = useState<string>('');
-    const [todoCreatedAt, setTodoCreatedAt] = useState<string>(new Date().toISOString());
-    const [todoText, setTodoText] = useState<string>('');
-    const [todoType, setTodoType] = useState<'daily' | 'weekly'>('daily');
-    const [todoComplete, setTodoComplete] = useState<boolean>(false);
-    const [trackingDays, setTrackingDays] = useState<string[]>(daysOfWeek);
-    const [allDates, setAllDates] = useState<Record<number, string[]>>({});
-    const [completedDates, setCompletedDates] = useState<string[]>([]);
-    const [weeklyCount, setWeeklyCount] = useState<number>(1);
+
     const navigate = useNavigate();
     const location = useLocation();
+
+    const emptyTodo = {
+        id: '',
+        text: '',
+        completed: false,
+        type: 'daily' as 'daily' | 'weekly',
+        completedDates: [],
+        trackingDetails: {
+            daily: daysOfWeek,
+            weekly: 1,
+        },
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+    };
+
+    const [todo, setTodo] = useState<TodoItem>(emptyTodo);
 
     useEffect(() => {
         const queryParams = new URLSearchParams(location.search);
@@ -32,76 +38,72 @@ const AddToDo: React.FC<AddTodoFormProps> = () => {
         if (todoId) {
             const todoItem = getTodoById(todoId);
             if (todoItem) {
-                setTodoId(todoItem.id);
-                setTodoCreatedAt(todoItem.createdAt);
-                setIsUpdate(true);
-                setTodoText(todoItem.text);
-                setTodoComplete(todoItem.completed);
-                setTodoType(todoItem.type);
-                setTrackingDays(todoItem.trackingDetails?.daily || []);
-                setWeeklyCount(todoItem.trackingDetails?.weekly || 1);
-                setCompletedDates(todoItem.completedDates);
+                setTodo(todoItem);
             }
         }
-        setAllDates(generateWeeklyGroupedDates(todoCreatedAt));
     }, [location.search]);
 
     const handleSave = () => {
-        if (!todoText.trim()) {
+        if (!todo.text.trim()) {
             alert('Title is required.');
             return;
-        } else if (todoType === 'daily' && trackingDays.length === 0) {
+        } else if (todo.type === 'daily' && todo.trackingDetails?.daily?.length === 0) {
             alert('Please select at least one tracking day.');
             return;
-        } else if (todoType === 'weekly' && (weeklyCount < 1 || weeklyCount > 7)) {
+        } else if (todo.type === 'weekly' && todo.trackingDetails?.weekly != null && (todo.trackingDetails.weekly < 1 || todo.trackingDetails.weekly > 7)) {
             alert('Please enter weekly count between 1-7.');
             return;
         }
 
-        const newTodo = {
-            id: isUpdate ? todoId : v4(),
-            text: todoText,
-            completed: todoComplete,
-            type: todoType,
-            completedDates: completedDates,
-            trackingDetails: {
-                daily: trackingDays,
-                weekly: weeklyCount,
-            },
-            createdAt: todoCreatedAt,
-            updatedAt: new Date().toISOString(),
-        };
-
-        if (isUpdate) {
-            updateTodo(todoId, newTodo);
-        } else {
-            saveTodo(newTodo);
-        }
-
-        setTodoText('');
-        setTodoType('daily');
-        setTrackingDays([]);
-        setWeeklyCount(1);
-
+        saveTodo(todo);
+        setTodo(emptyTodo);
         navigate(-1);
     };
+
+    const toggleTrackingDay = (day: string) => {
+        const updatedDays = todo.trackingDetails.daily?.includes(day)
+            ? todo.trackingDetails.daily.filter((d) => d !== day)
+            : [...(todo.trackingDetails.daily || []), day];
+
+        setTodo({
+            ...todo,
+            trackingDetails: {
+                ...todo.trackingDetails,
+                daily: updatedDays,
+            },
+        });
+    };
+
+    const toggleCompletedDate = (date: string) => {
+        const updatedCompletedDates = todo.completedDates.includes(date)
+            ? todo.completedDates.filter((d) => d !== date)
+            : [...todo.completedDates, date];
+
+        setTodo({
+            ...todo,
+            completedDates: updatedCompletedDates,
+        });
+    };
+
+    const allDates = generateWeeklyGroupedDates(todo.createdAt);
 
     return (
         <div className="add-todo-form">
             <div>
                 <label className="input-label">Title</label>
-                <input type="text" value={todoText} onChange={(e) => setTodoText(e.target.value)}/>
+                <input type="text" value={todo.text} onChange={(e) => setTodo({...todo, text: e.target.value})}/>
             </div>
 
             <div>
                 <label className="input-label">Type</label>
-                <select value={todoType} onChange={(e) => setTodoType(e.target.value as 'daily' | 'weekly')}>
+                <select value={todo.type}
+                        onChange={(e) => setTodo({...todo, type: e.target.value as 'daily' | 'weekly'})}>
                     <option value="daily">Daily</option>
                     <option value="weekly">Weekly</option>
                 </select>
             </div>
 
-            {todoType === 'daily' && (
+            {todo.type === 'daily' && (
                 <div>
                     <label className="input-label"> Tracking Days</label>
                     <div className="tracking-days-container">
@@ -111,7 +113,7 @@ const AddToDo: React.FC<AddTodoFormProps> = () => {
                                     type="checkbox"
                                     id={day}
                                     value={day}
-                                    checked={trackingDays.includes(day)}
+                                    checked={todo.trackingDetails.daily?.includes(day) || false}
                                     onChange={() => toggleTrackingDay(day)}
                                     className="input-checkbox"
                                 />
@@ -122,23 +124,26 @@ const AddToDo: React.FC<AddTodoFormProps> = () => {
                 </div>
             )}
 
-
-            {todoType === 'weekly' && (
+            {todo.type === 'weekly' && (
                 <div>
-                    <div className="input-label">Weekly Count</div>
+                    <label className="input-label">Weekly Count</label>
                     <input
                         type="number"
-                        value={weeklyCount}
+                        value={todo.trackingDetails.weekly || 1}
                         min={1}
                         max={7}
-                        onChange={(e) => setWeeklyCount(parseInt(e.target.value, 10))}
+                        onChange={(e) => setTodo({
+                            ...todo,
+                            trackingDetails: {...todo.trackingDetails, weekly: parseInt(e.target.value, 10)}
+                        })}
                     />
                 </div>
             )}
 
             <div>
                 <label className="input-label">Status</label>
-                <select value={todoComplete ? 1 : 0} onChange={(e) => setTodoComplete(e.target.value === "1")}>
+                <select value={todo.completed ? 1 : 0}
+                        onChange={(e) => setTodo({...todo, completed: e.target.value === "1"})}>
                     <option value="0">Ongoing</option>
                     <option value="1">Completed</option>
                 </select>
@@ -157,7 +162,7 @@ const AddToDo: React.FC<AddTodoFormProps> = () => {
                                         type="checkbox"
                                         id={date}
                                         value={date}
-                                        checked={completedDates.includes(date)}
+                                        checked={todo.completedDates.includes(date)}
                                         onChange={() => toggleCompletedDate(date)}
                                         className="input-checkbox"
                                     />
@@ -170,30 +175,12 @@ const AddToDo: React.FC<AddTodoFormProps> = () => {
             </div>
 
             <div className="button-container">
-                <button className="save-to-do-button" onClick={handleSave}>{isUpdate ? "Update" : "Save"}</button>
+                <button className="save-to-do-button" onClick={handleSave}>Save</button>
                 <button className="cancel-to-do-button" onClick={() => navigate(-1)}>Cancel</button>
             </div>
 
         </div>
     );
-
-    function toggleTrackingDay(day: string) {
-        const updatedDays = trackingDays.includes(day)
-            ? trackingDays.filter((d) => d !== day)
-            : [...trackingDays, day];
-
-        setTrackingDays(updatedDays);
-    }
-
-    function toggleCompletedDate(date: string) {
-        const updatedCompletedDates = completedDates.includes(date)
-            ? completedDates.filter((d) => d !== date)
-            : [...completedDates, date];
-
-        setCompletedDates(updatedCompletedDates);
-    }
-
-
 };
 
 export default AddToDo;
