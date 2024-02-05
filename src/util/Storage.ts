@@ -1,33 +1,30 @@
-import {TodoItem} from "../types/ToDo";
+import {ToDoItem} from "../types/ToDo";
 
 const {v4} = require("uuid");
 
-export const loadTodos = (): TodoItem[] => {
+export const loadTodos = (): ToDoItem[] => {
     const todosJSON = localStorage.getItem('todos');
     return todosJSON ? JSON.parse(todosJSON) : [];
 };
 
-export const saveTodos = (todos: TodoItem[]) => {
+const saveTodos = (todos: ToDoItem[]) => {
     localStorage.setItem('todos', JSON.stringify(todos));
 };
 
-
-export const saveTodo = (todo: Partial<TodoItem>) => {
+export const saveTodo = (todo: ToDoItem) => {
+    todo.updatedAt = new Date().toISOString();
     if (todo.id?.length === 0) {
         todo.id = v4();
-        localStorage.setItem('todos', JSON.stringify([todo, ...loadTodos()]));
+        todo.createdAt = new Date().toISOString();
+        saveTodos([todo, ...loadTodos()]);
     } else {
-        updateTodo(todo);
+        const todos = loadTodos();
+        const updatedTodos = todos.map(item => (item.id === todo.id ? {...item, ...todo} : item));
+        saveTodos(updatedTodos);
     }
 };
 
-export const getTodoById = (id: string): TodoItem | undefined => {
+export const getTodoById = (id: string | null): ToDoItem | undefined => {
     const todos = loadTodos();
     return todos.find(todo => todo.id === id);
-};
-
-const updateTodo = (updatedTodo: Partial<TodoItem>) => {
-    const todos = loadTodos();
-    const updatedTodos = todos.map(todo => (todo.id === updatedTodo.id ? {...todo, ...updatedTodo} : todo));
-    saveTodos(updatedTodos);
 };

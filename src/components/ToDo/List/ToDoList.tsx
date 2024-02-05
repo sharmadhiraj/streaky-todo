@@ -1,17 +1,13 @@
 import React, {useState} from 'react';
 import Todo from "../Item/ToDo";
 import './ToDoList.css';
-import {TodoItem} from "../../../types/ToDo";
+import {ToDoItem} from "../../../types/ToDo";
 import {useNavigate} from 'react-router-dom';
 import {loadTodos} from "../../../util/Storage";
 
 
-interface ToDoListProps {
-}
-
-
-const ToDoList: React.FC<ToDoListProps> = () => {
-    const [todos] = useState<TodoItem[]>(loadTodos);
+const ToDoList: React.FC = () => {
+    const [todos] = useState<ToDoItem[]>(loadTodos);
     const [showCompleted, setShowCompleted] = useState<boolean>(false);
     const navigate = useNavigate();
 

@@ -1,5 +1,5 @@
 export const generateWeeklyGroupedDates = (startDateString: string): Record<number, string[]> => {
-    let startDate = new Date(startDateString);
+    let startDate = parseDate(startDateString);
     startDate = new Date(startDate.getFullYear(), startDate.getMonth(), startDate.getDate());
     const now = new Date();
     const today = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59);
@@ -23,6 +23,14 @@ export const generateWeeklyGroupedDates = (startDateString: string): Record<numb
     return groupedDates;
 };
 
+const parseDate = (dateString: string): Date => {
+    try {
+        return new Date(dateString);
+    } catch (e) {
+        return new Date();
+    }
+}
+
 const getWeekNumber = (date: Date): number => {
     const copiedDate = new Date(date.getTime());
     copiedDate.setMonth(0, 1);
@@ -38,7 +46,6 @@ const getWeekNumber = (date: Date): number => {
     return Math.ceil((daysToFirstSunday + diffInDays + 1) / 7);
 }
 
-
 export const generateFlatDates = (createdAt: string) => {
     const dateStrings = Object.values(generateWeeklyGroupedDates(createdAt)).flat();
     return dateStrings.sort((a, b) => {
@@ -47,3 +54,5 @@ export const generateFlatDates = (createdAt: string) => {
         return dateB.getTime() - dateA.getTime();
     });
 }
+
+export const daysOfWeek = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];

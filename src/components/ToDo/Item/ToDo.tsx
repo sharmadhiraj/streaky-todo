@@ -1,10 +1,11 @@
 import React from 'react';
-import {calculateCurrentStreak, calculateLongestStreak, TodoItem} from "../../../types/ToDo";
+import {ToDoItem} from "../../../types/ToDo";
 import './ToDo.css';
 import {useNavigate} from "react-router-dom";
+import {calculateCurrentStreak, calculateLongestStreak} from "../../../util/Streak";
 
 interface TodoProps {
-    todo: TodoItem;
+    todo: ToDoItem;
 }
 
 const Todo: React.FC<TodoProps> = ({todo}) => {

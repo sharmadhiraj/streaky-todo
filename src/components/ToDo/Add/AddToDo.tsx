@@ -1,25 +1,26 @@
-import React, {useEffect, useState} from 'react';
+import React, {useEffect} from 'react';
 import './AddToDo.css';
 import {useLocation, useNavigate} from 'react-router-dom';
 import {getTodoById, saveTodo} from "../../../util/Storage";
-import {generateWeeklyGroupedDates} from "../../../util/Common";
-import {TodoItem} from "../../../types/ToDo";
+import {daysOfWeek} from "../../../util/Date";
+import {ToDoItem} from "../../../types/ToDo";
+import DailySection from "./Components/DailySection";
+import WeeklySection from "./Components/WeeklySection";
+import StatusSection from "./Components/StatusSection";
+import CompletedDaysSection from "./Components/CompletedDaysSection";
+import useToDoState from "../../../hooks/useToDoState";
+import {DAILY, WEEKLY} from "../../../util/Streak";
 
-interface AddTodoFormProps {
-}
 
-const daysOfWeek = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
-
-const AddToDo: React.FC<AddTodoFormProps> = () => {
-
+const AddToDo: React.FC = () => {
     const navigate = useNavigate();
     const location = useLocation();
 
-    const emptyTodo = {
+    const emptyTodo: ToDoItem = {
         id: '',
         text: '',
         completed: false,
-        type: 'daily' as 'daily' | 'weekly',
+        type: DAILY,
         completedDates: [],
         trackingDetails: {
             daily: daysOfWeek,
@@ -29,17 +30,13 @@ const AddToDo: React.FC<AddTodoFormProps> = () => {
         updatedAt: new Date().toISOString(),
     };
 
-    const [todo, setTodo] = useState<TodoItem>(emptyTodo);
+    const [todo, updateTodo] = useToDoState(emptyTodo);
 
     useEffect(() => {
         const queryParams = new URLSearchParams(location.search);
-        const todoId = queryParams.get('id');
-
-        if (todoId) {
-            const todoItem = getTodoById(todoId);
-            if (todoItem) {
-                setTodo(todoItem);
-            }
+        const todoItem = getTodoById(queryParams.get('id'));
+        if (todoItem) {
+            updateTodo(todoItem);
         }
     }, [location.search]);
 
@@ -47,16 +44,16 @@ const AddToDo: React.FC<AddTodoFormProps> = () => {
         if (!todo.text.trim()) {
             alert('Title is required.');
             return;
-        } else if (todo.type === 'daily' && todo.trackingDetails?.daily?.length === 0) {
+        } else if (todo.type === DAILY && todo.trackingDetails?.daily?.length === 0) {
             alert('Please select at least one tracking day.');
             return;
-        } else if (todo.type === 'weekly' && todo.trackingDetails?.weekly != null && (todo.trackingDetails.weekly < 1 || todo.trackingDetails.weekly > 7)) {
+        } else if (todo.type === WEEKLY && todo.trackingDetails?.weekly != null && (todo.trackingDetails.weekly < 1 || todo.trackingDetails.weekly > 7)) {
             alert('Please enter weekly count between 1-7.');
             return;
         }
 
         saveTodo(todo);
-        setTodo(emptyTodo);
+        updateTodo(emptyTodo);
         navigate(-1);
     };
 
@@ -65,7 +62,7 @@ const AddToDo: React.FC<AddTodoFormProps> = () => {
             ? todo.trackingDetails.daily.filter((d) => d !== day)
             : [...(todo.trackingDetails.daily || []), day];
 
-        setTodo({
+        updateTodo({
             ...todo,
             trackingDetails: {
                 ...todo.trackingDetails,
@@ -74,111 +71,65 @@ const AddToDo: React.FC<AddTodoFormProps> = () => {
         });
     };
 
+    const onWeeklyCountChange = (count: number) => {
+        updateTodo({
+            ...todo,
+            trackingDetails: {...todo.trackingDetails, weekly: count}
+        })
+    };
+
+    const handleTypeChange = (e: any) => {
+        updateTodo({...todo, type: e.target.value as 'daily' | 'weekly'})
+    }
+
+    const onToggleStatus = (status: boolean) => {
+        updateTodo({...todo, completed: status})
+    };
+
     const toggleCompletedDate = (date: string) => {
         const updatedCompletedDates = todo.completedDates.includes(date)
             ? todo.completedDates.filter((d) => d !== date)
             : [...todo.completedDates, date];
 
-        setTodo({
+        updateTodo({
             ...todo,
             completedDates: updatedCompletedDates,
         });
     };
 
-    const allDates = generateWeeklyGroupedDates(todo.createdAt);
-
     return (
         <div className="add-todo-form">
             <div>
                 <label className="input-label">Title</label>
-                <input type="text" value={todo.text} onChange={(e) => setTodo({...todo, text: e.target.value})}/>
+                <input
+                    type="text"
+                    value={todo.text}
+                    onChange={(e) => updateTodo({...todo, text: e.target.value})}
+                />
             </div>
 
             <div>
                 <label className="input-label">Type</label>
-                <select value={todo.type}
-                        onChange={(e) => setTodo({...todo, type: e.target.value as 'daily' | 'weekly'})}>
-                    <option value="daily">Daily</option>
-                    <option value="weekly">Weekly</option>
+                <select
+                    value={todo.type}
+                    onChange={handleTypeChange}>
+                    <option value={DAILY}>Daily</option>
+                    <option value={WEEKLY}>Weekly</option>
                 </select>
             </div>
 
-            {todo.type === 'daily' && (
-                <div>
-                    <label className="input-label"> Tracking Days</label>
-                    <div className="tracking-days-container">
-                        {daysOfWeek.map((day) => (
-                            <div key={`${day}-div`} className="day-checkbox">
-                                <input
-                                    type="checkbox"
-                                    id={day}
-                                    value={day}
-                                    checked={todo.trackingDetails.daily?.includes(day) || false}
-                                    onChange={() => toggleTrackingDay(day)}
-                                    className="input-checkbox"
-                                />
-                                <label htmlFor={day}>{day}</label>
-                            </div>
-                        ))}
-                    </div>
-                </div>
-            )}
+            {todo.type === DAILY && <DailySection todo={todo} onToggleTrackingDay={toggleTrackingDay}/>}
 
-            {todo.type === 'weekly' && (
-                <div>
-                    <label className="input-label">Weekly Count</label>
-                    <input
-                        type="number"
-                        value={todo.trackingDetails.weekly || 1}
-                        min={1}
-                        max={7}
-                        onChange={(e) => setTodo({
-                            ...todo,
-                            trackingDetails: {...todo.trackingDetails, weekly: parseInt(e.target.value, 10)}
-                        })}
-                    />
-                </div>
-            )}
+            {todo.type === WEEKLY && <WeeklySection todo={todo} onWeeklyCountChange={onWeeklyCountChange}/>}
 
-            <div>
-                <label className="input-label">Status</label>
-                <select value={todo.completed ? 1 : 0}
-                        onChange={(e) => setTodo({...todo, completed: e.target.value === "1"})}>
-                    <option value="0">Ongoing</option>
-                    <option value="1">Completed</option>
-                </select>
-            </div>
+            <StatusSection todo={todo} onToggleStatus={onToggleStatus}/>
 
-            <br/>
-            <label>Completed Days</label>
-            <div className="completed-days-container">
-                {Object.keys(allDates).reverse().map((weekNumber) => (
-                    <div key={weekNumber} className="completed-days-week-container">
-                        <b>Week {weekNumber}</b>
-                        <div className="completed-days-week-days-container">
-                            {allDates[parseInt(weekNumber)].map((date) => (
-                                <div key={`${date}-div`} className="day-checkbox">
-                                    <input
-                                        type="checkbox"
-                                        id={date}
-                                        value={date}
-                                        checked={todo.completedDates.includes(date)}
-                                        onChange={() => toggleCompletedDate(date)}
-                                        className="input-checkbox"
-                                    />
-                                    <label htmlFor={date} className="input-checkbox-label">{date}</label>
-                                </div>
-                            ))}
-                        </div>
-                    </div>
-                ))}
-            </div>
+            <CompletedDaysSection todo={todo} onToggleCompletedDate={toggleCompletedDate}/>
 
             <div className="button-container">
                 <button className="save-to-do-button" onClick={handleSave}>Save</button>
                 <button className="cancel-to-do-button" onClick={() => navigate(-1)}>Cancel</button>
             </div>
-
         </div>
     );
 };
