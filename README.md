@@ -50,11 +50,19 @@ Follow these steps to set up the Streaky ToDo app on your local machine:
 
    The app will be accessible at [http://localhost:3000](http://localhost:3000).
 
+## Run Tests
+
+To run the tests, use the following command:
+
+```bash
+npm test
+```
+
 ## Possible Improvements
 
 - UI enhancements
 - Storage mechanism upgrade (currently uses local storage)
-- Test implementation
+- Add further tests (Unit & UI)
 - Feature to set the start date as the current date (currently, the created date is considered as the start date)
 
 I am actively working on improvements, and any feedback is highly welcomed.

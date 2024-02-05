@@ -23,15 +23,15 @@ export const generateWeeklyGroupedDates = (startDateString: string): Record<numb
     return groupedDates;
 };
 
-const parseDate = (dateString: string): Date => {
-    try {
-        return new Date(dateString);
-    } catch (e) {
+export const parseDate = (dateString: string): Date => {
+    const parsedDate = new Date(dateString);
+    if (isNaN(parsedDate.getTime())) {
         return new Date();
     }
-}
+    return parsedDate;
+};
 
-const getWeekNumber = (date: Date): number => {
+export const getWeekNumber = (date: Date): number => {
     const copiedDate = new Date(date.getTime());
     copiedDate.setMonth(0, 1);
 
