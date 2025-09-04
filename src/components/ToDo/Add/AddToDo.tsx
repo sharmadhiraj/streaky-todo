@@ -38,7 +38,7 @@ const AddToDo: React.FC = () => {
         if (todoItem) {
             updateTodo(todoItem);
         }
-    }, [location.search]);
+    }, [location.search, updateTodo]);
 
     const handleSave = () => {
         if (!todo.text.trim()) {
