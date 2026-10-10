@@ -1,68 +1,48 @@
 # Streaky ToDo
 
-Streaky ToDo is a React app designed to help you manage your daily or weekly goals while tracking your streaks.
+Track daily or weekly goals and keep your streaks going. Runs entirely in the browser, installable and usable offline.
+
+**Live:** https://sharmadhiraj.github.io/streaky-todo/
 
 ## Features
 
-- Create ToDo items with daily or weekly goals.
-- Specify weekdays for daily goals or a count for weekly goals.
-- Track completion for each day.
-- Calculate current and longest streaks based on weekly count or tracking days.
-- Mark ToDo items as ongoing or completed.
+- Daily goals on the weekdays you choose, or weekly goals with a target count
+- Mark today or yesterday from the list, or any past day from the history grid
+- Current and longest streak per goal
+- Start date, ongoing/completed status
+- JSON export and import for backups
+- Light and dark theme (follows your system)
 
-#### Note
+## How streaks work
 
-- A streak is not considered over until the day is finished (for daily goals) or until the week is over (for weekly
-  goals).
-- Users can backtrack to update any day, and the streak will adjust accordingly.
+| Goal   | Streak counts                       | A streak breaks when                      |
+|--------|-------------------------------------|-------------------------------------------|
+| Daily  | Consecutive completed days          | A tracked weekday passes without a check  |
+| Weekly | Consecutive weeks reaching the goal | A finished week falls short of the target |
 
-## Demo
+Today (or the current week) never breaks a streak until it is over. Weeks start on Monday.
+Updating a past day recalculates the streak.
 
-![Demo Gif](demo.gif)
+## Data
 
-## Setup Guide
+Everything is stored in your browser's `localStorage`. Clearing site data deletes it, so use **Export** now and then.
+Data from the first version of the app is migrated automatically.
 
-Follow these steps to set up the Streaky ToDo app on your local machine:
+## Development
 
-1. **Clone the repository:**
-
-   ```bash
-   git clone https://github.com/sharmadhiraj/streaky-todo.git
-   ```
-
-2. **Navigate to the project directory:**
-
-   ```bash
-   cd streaky-todo
-   ```
-
-3. **Install dependencies:**
-
-   ```bash
-   npm install
-   ```
-
-4. **Run the app:**
-
-   ```bash
-   npm start
-   ```
-
-   The app will be accessible at [http://localhost:3000](http://localhost:3000).
-
-## Run Tests
-
-To run the tests, use the following command:
+Requires Node 20.19 or newer.
 
 ```bash
-npm test
+npm install
+npm run dev        # start the dev server
+npm test           # unit tests
+npm run build      # type-check and production build into dist/
 ```
 
-## Possible Improvements
+Code layout: `src/lib` holds the pure logic (dates, streaks, storage, backup), `src/hooks` the state, and
+`src/components` the UI.
 
-- UI enhancements
-- Storage mechanism upgrade (currently uses local storage)
-- Add further tests (Unit & UI)
-- Feature to set the start date as the current date (currently, the created date is considered as the start date)
+## Deployment
 
-I am actively working on improvements, and any feedback is highly welcomed.
+Every push to `main` runs tests, builds, and deploys to GitHub Pages through `.github/workflows/deploy.yml`.
+One-time setup: in the repository settings, set **Pages > Source** to **GitHub Actions**.
