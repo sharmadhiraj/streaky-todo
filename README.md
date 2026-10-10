@@ -41,8 +41,3 @@ npm run build      # type-check and production build into dist/
 
 Code layout: `src/lib` holds the pure logic (dates, streaks, storage, backup), `src/hooks` the state, and
 `src/components` the UI.
-
-## Deployment
-
-Every push to `main` runs tests, builds, and deploys to GitHub Pages through `.github/workflows/deploy.yml`.
-One-time setup: in the repository settings, set **Pages > Source** to **GitHub Actions**.
