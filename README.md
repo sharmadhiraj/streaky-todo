@@ -4,6 +4,8 @@ Track daily or weekly goals and keep your streaks going. Runs entirely in the br
 
 **Live:** https://sharmadhiraj.github.io/streaky-todo/
 
+![Streaky ToDo demo](demo.gif)
+
 ## Features
 
 - Daily goals on the weekdays you choose, or weekly goals with a target count
